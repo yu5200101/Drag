@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .box {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            z-index: 100;
+            width: 100px;
+            height: 100px;
+            background: lightcoral;
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+<div class="box" id="box"></div>
+<script type="text/javascript" src="js/event-ES6.js"></script>
+<script>
+    let down = function (e) {
+        //=>this:oBox
+        this.strX = e.clientX;
+        this.strY = e.clientY;
+        this.strL = this.offsetLeft;
+        this.strT = this.offsetTop;
+        this._MOVE = move.myBind(this);
+        this._UP = up.myBind(this);
+        $event.on(document, 'mousemove', this._MOVE);
+        //=>绑定方法的时候向事件池中存放的是执行myBind的匿名函数（问题：移除的时候不知道移除的是谁）
+        $event.on(document, 'mouseup', this._UP);
+    };
+    let move = function (e) {
+        //=>this:oBox
+        let curL = e.clientX - this.strX + this.strL,
+            curT = e.clientY - this.strY + this.strT;
+        curL = curL < 0 ? 0 : (curL > maxL ? maxL : curL);
+        curT = curT < 0 ? 0 : (curT > maxT ? maxT : curT);
+        this.style.left = curL + 'px';
+        this.style.top = curT + 'px';
+    };
+    let up = function () {
+        //=>this:oBox
+        $event.off(document,'mousemove',this._MOVE);
+        $event.off(document,'mouseup',this._UP);
+    };
+    let oBox = document.getElementById('box'),
+        maxL = (document.documentElement.clientWidth || document.body.clientWidth) - oBox.offsetWidth,
+        maxT = (document.documentElement.clientHeight || document.body.clientHeight) - oBox.offsetHeight;
+    $event.on(oBox, 'mousedown', down);
+</script>
+</body>
+</html>
